@@ -130,5 +130,4 @@ dmypy.json
 .pyre/
 
 # ROS
-.catkin_workspace
 .idea/
