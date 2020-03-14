@@ -6,4 +6,6 @@
         <arg name="gui" value="$(arg gui)" />
     </include>
 
+    <include file="$(find jetbot_gazebo)/launch/robots.launch"/>
+
 </launch>
