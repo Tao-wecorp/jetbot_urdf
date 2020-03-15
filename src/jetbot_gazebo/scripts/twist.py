@@ -7,7 +7,7 @@ import time
 class RobotControl():
     def __init__(self):
         rospy.init_node('robot_control_node', anonymous=True)
-        self.vel_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+        self.vel_publisher = rospy.Publisher('/robot/cmd_vel', Twist, queue_size=1)
         self.cmd = Twist()
         self.ctrl_c = False
         self.rate = rospy.Rate(1)

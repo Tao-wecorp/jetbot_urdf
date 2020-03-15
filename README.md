@@ -12,3 +12,5 @@
 1. Replace all "home/kimbring2/catkin_ws/src/jetbot/jetbot_gazebo" with "home/robotics/Workspace/jetbot_cadrl/src/jetbot_gazebo/jetbot/jetbot_gazebo";
 2. Run chmod +x all python files under scripts before rosrun.
 3. Run roslaunch jetbot_description jetbot_rviz.launch
+4. Run roslaunch jetbot_gazebo main.launch
+5. Run rosrun rqt_gui rqt_gui
