@@ -7,6 +7,7 @@
 
 ## Env
     sudo apt-get install python-pip ros-melodic-ros-control ros-melodic-ros-controllers ros-melodic-joint-state-publisher-gui
+    sudo apt-get install ros-melodic-teleop-twist-keyboard
     pip2 install imageio==2.6.1
     pip2 install tensorflow-gpu==1.14.0 keras==2.3.1
     pip2 install cvlib --no-deps
