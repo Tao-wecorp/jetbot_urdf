@@ -15,5 +15,5 @@
 2. Run chmod +x all python files under scripts before rosrun.
 3. Run roslaunch jetbot_description jetbot_rviz.launch
 4. Run roslaunch jetbot_gazebo main.launch
-5. Run rosrun rqt_gui rqt_gui
+5. Run rosrun rqt_gui rqt_gui OR rosrun rqt_image_view rqt_image_view
 6. Run rosrun jetbot_gazebo twist.py
