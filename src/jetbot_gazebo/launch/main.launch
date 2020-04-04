@@ -7,6 +7,6 @@
     </include>
 
     <include file="$(find jetbot_gazebo)/launch/robots.launch"/>
-    <include file="$(find person_sim)/launch/spawn_standing_person.launch"/>
+    <!-- <include file="$(find person_sim)/launch/spawn_standing_person.launch"/> -->
 
 </launch>
