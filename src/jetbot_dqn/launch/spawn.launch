@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <launch>
     <group ns="/robot">
         <param name="tf_prefix" value="jetbot" />
@@ -5,7 +6,7 @@
 
         <param name="/robot/robot_description" command="$(find xacro)/xacro --inorder '$(find jetbot_description)/urdf/jetbot.xacro'"/>
         <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
-              args="-z 1.0 -unpause -urdf -model robot -param robot_description -x -3 -y 0 -z 0
+              args="-unpause -urdf -model robot -param robot_description -x -5 -y 0 -z 0
               -R 0 -P 0 -Y 0" respawn="false" output="screen">
         </node>
 
