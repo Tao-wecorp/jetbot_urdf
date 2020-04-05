@@ -26,10 +26,13 @@ class QLearning():
         self.reward  = (1-abs(self.goal-self.state)/self.full_angel)*100
 
     def yaw(self, position):
-        goal = degrees(atan(float(position[0]-320)/(480-position[1])))
+        new_goal = degrees(atan(float(320-position[0])/(480-position[1])))
+        yaw = new_goal - self.goal
+        print(position, new_goal, self.goal, yaw)
+        # self.goal = new_goal
         full_angel = degrees(atan(float(320)/(480-position[1])))
-        reward = (1-abs(goal-self.state)/full_angel)*100
-        return goal
+        reward = (1-abs(float(new_goal-self.state))/full_angel)*100
+        return yaw
     
     def step(self, act, learning_rate):
         new_state = self.state + (act * learning_rate)
