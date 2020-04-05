@@ -21,8 +21,19 @@ import numpy as np
 import random
 import time
 import itertools
-import os
+
 from copy import deepcopy
+
+import rospkg
+rospack = rospkg.RosPack()
+import os
+import sys
+helpers_folder = os.path.join(rospack.get_path("jetbot_dqn"), "scripts/helpers")
+sys.path.append(helpers_folder)
+
+from openpose import OpenPose
+openpose = OpenPose()
+x_fpv, y_fpv = [320, 480]
 
 class Pose(object):
     def __init__(self):
@@ -36,9 +47,12 @@ class Pose(object):
         while not rospy.is_shutdown():
             if self.frame is not None:
                 start_time = time.time()
-
                 frame = deepcopy(self.frame)
 
+                x_hip, y_hip = openpose.detect(frame)[11]
+                frame = cv2.circle(frame, (int(x_hip), int(y_hip)), 3, (0, 255, 255), thickness=-1, lineType=cv2.FILLED)
+
+                frame = cv2.circle(frame, (int(x_fpv), int(y_fpv)), 5, (255, 0, 255), thickness=-1, lineType=cv2.FILLED)
                 cv2.imshow("", frame)
                 cv2.waitKey(1)
 
