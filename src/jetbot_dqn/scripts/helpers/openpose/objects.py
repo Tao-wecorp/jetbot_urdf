@@ -4,6 +4,7 @@ import cv2
 import os
 import rospy
 import rospkg
+import time
 
 rospack = rospkg.RosPack()
 openpose_folder = os.path.join(rospack.get_path("jetbot_dqn"), "scripts/helpers/openpose/models/")
@@ -35,5 +36,4 @@ class OpenPose():
                 points.append((int(x), int(y)))
             else :
                 points.append(None)
-        
         return points

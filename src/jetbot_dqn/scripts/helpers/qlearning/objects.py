@@ -2,7 +2,7 @@
 
 import numpy as np
 from math import *
-import matplotlib.pyplot as mp
+import time
 
 ACTIONMAT = np.array([-1, 0, 1])
 reward = 0.0
@@ -23,16 +23,7 @@ class QLearning():
         self.full_angel =  degrees(atan(float(320)/(480-position[1])))
        
     def calcReward(self):
-        self.reward  = (1-abs(self.goal-self.state)/self.full_angel)*100
-
-    def yaw(self, position):
-        new_goal = degrees(atan(float(320-position[0])/(480-position[1])))
-        yaw = new_goal - self.goal
-        print(position, new_goal, self.goal, yaw)
-        # self.goal = new_goal
-        full_angel = degrees(atan(float(320)/(480-position[1])))
-        reward = (1-abs(float(new_goal-self.state))/full_angel)*100
-        return yaw
+        self.reward  = (1-abs(float(new_goal-self.state))/full_angel)*100
     
     def step(self, act, learning_rate):
         new_state = self.state + (act * learning_rate)
@@ -43,3 +34,11 @@ class QLearning():
         self.setState(new_state)
         reward = self.calcReward()
         return self.state, reward
+
+    def yaw(self, position):
+        new_goal = degrees(atan(float(320-position[0])/(480-position[1])))
+        yaw = new_goal
+        # yaw = new_goal + self.goal
+        self.goal = new_goal
+        print(position, new_goal, yaw)
+        return yaw
