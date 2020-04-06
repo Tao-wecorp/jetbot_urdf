@@ -41,18 +41,17 @@ class Pose(object):
         self.img_sub = rospy.Subscriber("/robot/camera/image_raw",Image,self.camera_callback)
         self.bridge_object = CvBridge()
         self.frame = None
-        self.position = None
+        self.robot_position = None
 
         self.states_sub = rospy.Subscriber("/gazebo/model_states",ModelStates,self.states_callback)
         self.set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
         
-        rate = rospy.Rate(30)
-        state_msg = ModelState()
-        state_msg.model_name = 'robot'
-        state_msg.reference_frame = 'world'
+        rate = rospy.Rate(2000)
+        state_robot_msg = ModelState()
+        state_robot_msg.model_name = 'robot'
         while not rospy.is_shutdown():
             if self.frame is not None:
-                start_time = time.time()
+                # start_time = time.time()
                 frame = deepcopy(self.frame)
                 
                 x_hip, y_hip = openpose.detect(frame)[11]
@@ -60,9 +59,9 @@ class Pose(object):
                 
                 rospy.wait_for_service('/gazebo/set_model_state')
                 try:
-                    state_msg.pose.position = self.position
-                    state_msg.pose.orientation = Quaternion(*quaternion_from_euler(0.0, 0.0, yaw_angle*pi/180))
-                    self.set_state(state_msg)
+                    state_robot_msg.pose.position = self.robot_position
+                    state_robot_msg.pose.orientation = Quaternion(*quaternion_from_euler(0.0, 0.0, yaw_angle*pi/180))
+                    self.set_state(state_robot_msg)
                 except rospy.ServiceException, e:
                     print(e)
                     
@@ -71,7 +70,7 @@ class Pose(object):
                 cv2.imshow("", frame)
                 cv2.waitKey(1)
 
-                print("%s seconds" % (time.time() - start_time))
+                # print("%s seconds" % (time.time() - start_time))
             rate.sleep()
     
     def camera_callback(self,data):
@@ -82,7 +81,7 @@ class Pose(object):
         self.frame = cv_img
 
     def states_callback(self,data):
-        self.position = data.pose[2].position
+        self.robot_position = data.pose[2].position
         
 
 def main():
