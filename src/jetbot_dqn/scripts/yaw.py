@@ -57,7 +57,7 @@ class Pose(object):
                 frame = deepcopy(self.frame)
                 
                 x_hip, y_hip = openpose.detect(frame)[11]
-                # yaw_angle = q.yaw([x_hip, y_hip])
+                yaw_angle = q.yaw([x_hip, y_hip])
                 
                 rospy.wait_for_service('/gazebo/set_model_state')
                 try:
