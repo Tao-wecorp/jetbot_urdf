@@ -20,18 +20,11 @@ import random
 import time
 import itertools
 
-import rospkg
-rospack = rospkg.RosPack()
-import os
-import sys
-helpers_folder = os.path.join(rospack.get_path("jetbot_dqn"), "scripts/helpers")
-sys.path.append(helpers_folder)
-
-from openpose import OpenPose
+from helpers.openpose import OpenPose
 openpose = OpenPose()
 x_fpv, y_fpv = [320, 480]
 
-from qlearning import QLearning
+from helpers.qlearning import QLearning
 q = QLearning()
 
 class Pose(object):
