@@ -37,8 +37,7 @@ class QLearning():
 
     def yaw(self, position):
         new_goal = degrees(atan(float(320-position[0])/(480-position[1])))
-        yaw = new_goal
-        # yaw = new_goal + self.goal
-        self.goal = new_goal
+        yaw = new_goal + self.goal
+        self.goal = yaw
         print(position, new_goal, yaw)
-        return yaw
+        return new_goal

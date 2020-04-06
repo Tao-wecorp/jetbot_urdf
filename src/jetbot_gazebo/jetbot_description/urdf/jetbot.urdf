@@ -110,7 +110,7 @@
     <!-- Camera Sensor -->
     <gazebo reference="camera_link">
       <sensor type="camera" name="camera_camera_sensor">
-        <update_rate>60.0</update_rate>
+        <update_rate>30.0</update_rate>
         <camera>
           <pose>0.035 0 0.078 0 0 0</pose>
           <horizontal_fov>1.3962634</horizontal_fov>
