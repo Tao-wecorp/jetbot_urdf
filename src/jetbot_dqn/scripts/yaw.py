@@ -50,9 +50,11 @@ class Pose(object):
                 # start_time = time.time()
                 frame = deepcopy(self.frame)
                 
-                x_hip, y_hip = openpose.detect(frame)[11]
+                points = openpose.detect(frame)
+                x_hip, y_hip = points[11]
                 yaw_angle = q.yaw([x_hip, y_hip])
                 
+
                 rospy.wait_for_service('/gazebo/set_model_state')
                 try:
                     pose.position = self.robot_position
@@ -61,14 +63,16 @@ class Pose(object):
                     self.set_state(state_robot_msg)
                 except rospy.ServiceException, e:
                     print(e)
-                    
-                frame = cv2.circle(frame, (int(x_hip), int(y_hip)), 3, (0, 255, 255), thickness=-1, lineType=cv2.FILLED)
+
+                for i in range(len(points)):
+                    if points[i] is not None:
+                        frame = cv2.circle(frame, (int(points[i][0]), int(points[i][1])), 3, (0, 255, 255), thickness=-1, lineType=cv2.FILLED)
                 frame = cv2.circle(frame, (int(x_fpv), int(y_fpv)), 10, (255, 0, 255), thickness=-1, lineType=cv2.FILLED)
                 cv2.imshow("", frame)
                 cv2.waitKey(1)
 
                 # print("%s seconds" % (time.time() - start_time))
-                time.sleep(1)
+                time.sleep(0.5)
             rate.sleep()
     
     def camera_callback(self,data):
