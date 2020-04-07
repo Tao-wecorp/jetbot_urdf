@@ -40,4 +40,4 @@ class QLearning():
         yaw = new_goal + self.goal
         self.goal = yaw
         print(position, new_goal, yaw)
-        return new_goal
+        return yaw

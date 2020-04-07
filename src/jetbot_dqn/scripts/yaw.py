@@ -26,6 +26,7 @@ x_fpv, y_fpv = [320, 480]
 
 from helpers.qlearning import QLearning
 q = QLearning()
+pose = Pose() 
 
 class Pose(object):
     def __init__(self):
@@ -37,13 +38,13 @@ class Pose(object):
         self.robot_position = None
 
         self.states_sub = rospy.Subscriber("/gazebo/model_states",ModelStates,self.states_callback)
-        self.set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
-        
-        rate = rospy.Rate(30)
+        self.set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)    
+        self.reset_simulation = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+
+        rate = rospy.Rate(2000)
+        self.reset_simulation()
         state_robot_msg = ModelState()
         state_robot_msg.model_name = 'robot'
-        state_actor_msg = ModelState()
-        state_robot_msg.model_name = 'actor_walk'
         while not rospy.is_shutdown():
             if self.frame is not None:
                 # start_time = time.time()
@@ -54,10 +55,10 @@ class Pose(object):
                 
                 rospy.wait_for_service('/gazebo/set_model_state')
                 try:
-                    state_actor_msg.pose.position = self.actor_position
-                    state_robot_msg.pose.position = self.robot_position
-                    # state_robot_msg.pose.orientation = Quaternion(*quaternion_from_euler(0.0, 0.0, yaw_angle*pi/180))
-                    # self.set_state(state_robot_msg)
+                    pose.position = self.robot_position
+                    pose.orientation = Quaternion(*quaternion_from_euler(0.0, 0.0, yaw_angle*pi/180))
+                    state_robot_msg.pose = pose
+                    self.set_state(state_robot_msg)
                 except rospy.ServiceException, e:
                     print(e)
                     
@@ -77,9 +78,7 @@ class Pose(object):
         self.frame = cv_img
 
     def states_callback(self,data):
-        self.actor_position = data.pose[1].position
         self.robot_position = data.pose[2].position
-        print(self.actor_position, self.robot_position)
         
 
 def main():
