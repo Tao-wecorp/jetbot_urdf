@@ -13,8 +13,8 @@ from geometry_msgs.msg import Point, Pose, Quaternion, Twist
 from copy import deepcopy
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
-import math
-from math import atan2, pi
+
+from math import *
 import numpy as np
 import random
 import time
@@ -41,20 +41,19 @@ class Pose(object):
         self.set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)    
         self.reset_simulation = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
 
-        rate = rospy.Rate(2000)
+        rate = rospy.Rate(30)
         self.reset_simulation()
         state_robot_msg = ModelState()
         state_robot_msg.model_name = 'robot'
         while not rospy.is_shutdown():
             if self.frame is not None:
-                # start_time = time.time()
+                start_time = time.time()
                 frame = deepcopy(self.frame)
                 
                 points = openpose.detect(frame)
                 x_hip, y_hip = points[11]
                 yaw_angle = q.yaw([x_hip, y_hip])
                 
-
                 rospy.wait_for_service('/gazebo/set_model_state')
                 try:
                     pose.position = self.robot_position
@@ -72,7 +71,7 @@ class Pose(object):
                 cv2.waitKey(1)
 
                 # print("%s seconds" % (time.time() - start_time))
-                time.sleep(0.5)
+                time.sleep(round((time.time() - start_time), 1))
             rate.sleep()
     
     def camera_callback(self,data):
