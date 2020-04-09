@@ -71,7 +71,7 @@ class Yaw(object):
                 cv2.imshow("", frame)
                 cv2.waitKey(1)
 
-                print("%s seconds" % (time.time() - start_time))
+                # print("%s seconds" % (time.time() - start_time))
                 time.sleep(round((time.time() - start_time), 1))
             rate.sleep()
     

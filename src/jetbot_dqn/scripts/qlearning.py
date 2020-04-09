@@ -39,8 +39,8 @@ class Yaw(object):
 
         self.pub_vel_left = rospy.Publisher('/robot/joint1_velocity_controller/command', Float64, queue_size=5)
         self.pub_vel_right = rospy.Publisher('/robot/joint2_velocity_controller/command', Float64, queue_size=5)    
-        # self.reset_simulation = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
-        # self.reset_simulation()
+        self.reset_simulation = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+        self.reset_simulation()
 
         rate = rospy.Rate(30)
         state_robot_msg = ModelState()
@@ -53,15 +53,12 @@ class Yaw(object):
                 points = openpose.detect(frame)
                 x_hip, y_hip = points[11]
                 yaw_angle = q.yaw([x_hip, y_hip])
-                
-                rospy.wait_for_service('/gazebo/set_model_state')
-                try:
-                    pose.position = self.robot_position
-                    pose.orientation = Quaternion(*quaternion_from_euler(0.0, 0.0, yaw_angle*pi/180))
-                    state_robot_msg.pose = pose
-                    self.set_state(state_robot_msg)
-                except rospy.ServiceException, e:
-                    print(e)
+
+                self.pub_vel_left.publish(40)
+                self.pub_vel_right.publish(40)
+                time.sleep(0.5)
+                self.pub_vel_left.publish(0)
+                self.pub_vel_right.publish(0)
 
                 for i in range(len(points)):
                     if points[i] is not None:
@@ -81,9 +78,6 @@ class Yaw(object):
         except CvBridgeError as e:
             print(e)
         self.frame = cv_img
-
-    def states_callback(self,data):
-        self.robot_position = data.pose[2].position
         
 
 def main():
