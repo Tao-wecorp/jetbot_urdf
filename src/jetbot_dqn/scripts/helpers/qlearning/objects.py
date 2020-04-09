@@ -7,6 +7,13 @@ import time
 ACTIONMAT = np.array([-1, 0, 1])
 reward = 0.0
 
+# Action
+stop = [0, 0]
+left = [40, -40]
+right = [-40, 40]
+actions = [stop, left, right]
+
+
 class QLearning():
     def __init__(self):
         self.state = 0.0  # [angle]

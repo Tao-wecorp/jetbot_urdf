@@ -5,6 +5,7 @@ import os
 import rospy
 import rospkg
 import time
+from math import *
 
 rospack = rospkg.RosPack()
 openpose_folder = os.path.join(rospack.get_path("jetbot_dqn"), "scripts/helpers/openpose/models/")
@@ -16,6 +17,9 @@ threshold = 0.1
 inputSize = 300
 
 class OpenPose():
+    def __init__(self):
+        self.goal = 0.0  # [angle]
+
     def detect(self, cv_image):
         frameWidth = cv_image.shape[1]
         frameHeight = cv_image.shape[0]
@@ -39,3 +43,9 @@ class OpenPose():
             else :
                 points.append(None)
         return points
+
+    def yaw(self, position):
+        new_goal = degrees(atan(float(320-position[0])/(480-position[1])))
+        yaw = new_goal + self.goal
+        self.goal = yaw
+        return yaw

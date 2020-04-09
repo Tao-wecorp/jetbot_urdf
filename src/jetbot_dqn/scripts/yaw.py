@@ -52,7 +52,7 @@ class Yaw(object):
                 
                 points = openpose.detect(frame)
                 x_hip, y_hip = points[11]
-                yaw_angle = q.yaw([x_hip, y_hip])
+                yaw_angle = openpose.yaw([x_hip, y_hip])
                 
                 rospy.wait_for_service('/gazebo/set_model_state')
                 try:
