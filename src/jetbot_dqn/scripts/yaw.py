@@ -28,9 +28,9 @@ from helpers.qlearning import QLearning
 q = QLearning()
 pose = Pose() 
 
-class Pose(object):
+class Yaw(object):
     def __init__(self):
-        rospy.init_node('pose_node', anonymous=True)
+        rospy.init_node('yaw_node', anonymous=True)
 
         self.img_sub = rospy.Subscriber("/robot/camera/image_raw",Image,self.camera_callback)
         self.bridge_object = CvBridge()
@@ -88,7 +88,7 @@ class Pose(object):
 
 def main():
     try:
-        Pose()
+        Yaw()
     except KeyboardInterrupt:
         pass
     cv2.destroyAllWindows()
