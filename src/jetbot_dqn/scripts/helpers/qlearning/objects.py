@@ -4,22 +4,19 @@ import numpy as np
 from math import *
 import time
 
-ACTIONMAT = np.array([-1, 0, 1])
+ACTIONMAT = np.array([0, 0], [-1, 1], [-2, 2], [-3, 3], [-4, 4], [-5, 5], 
+            [-6, 6], [-7, 7], [-8, 8], [-9, 9], [-10, 10], 
+            [1, -1], [2, -2], [3, -3], [4, -4], [5, -5], 
+            [6, -6], [7, -7], [8, -8], [9, -9], [10, -10])
 reward = 0.0
-
-# Action
-stop = [0, 0]
-left = [10, -10]
-right = [-10, 10]
-actions = [-1, 0, 1]
 
 
 class QLearning():
     def __init__(self):
-        self.state = 0.0  # [angle]
-        self.position = [0.0, 0.0]  # [x, y]
-        self.goal = 0.0  # [angle]
-        self.full_angel = 0.0  # [angle]
+        self.state = [0.0, 0.0]  # [robot_left_vel, robot_right_vel]
+        self.position = [0.0, 0.0]  # [person_x, person_y]
+        self.goal = 0.0  # [yaw_angle]
+        self.full_angel = 0.0  # [max_angle]
         self.reward = 0.0  # point
 
     def setState(self, state):

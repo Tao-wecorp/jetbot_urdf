@@ -50,9 +50,9 @@ class Yaw(object):
                 # x_hip, y_hip = points[11]
                 # yaw_angle = q.yaw([x_hip, y_hip])
 
-                self.pub_vel_left.publish(1)
+                self.pub_vel_left.publish(15)
                 self.pub_vel_right.publish(0)
-                # time.sleep(1)
+                # time.sleep(10)
                 # self.pub_vel_left.publish(0)
                 # self.pub_vel_right.publish(0)
 
@@ -80,6 +80,7 @@ class Yaw(object):
         euler = euler_from_quaternion((self.robot_orientation.x, self.robot_orientation.y, 
                                         self.robot_orientation.z, self.robot_orientation.w))
         yaw = degrees(euler[2])
+        print("%f yaw" % yaw)
 
 
 def main():
