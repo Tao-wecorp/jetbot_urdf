@@ -65,7 +65,7 @@ pre_state = state
 learningRate = 1
 q = QLearning()
 q.setState(state)
-position = [560, 240]
+position = [200, 240]
 goal = degrees(atan(float(position[0]-320)/(480-position[1])))
 print goal
 q.setGoal(position)
@@ -83,7 +83,7 @@ while reward < 98:
     print "action: ", action
     state,reward = q.step(action,learningRate)
     to_goal = goal - state
-    if to_goal > pre_to_goal:
+    if abs(to_goal) > abs(pre_to_goal):
         # if the new reward is worse than the old reward, throw this state away
         #print("old state",oldState,state,d2g,oldd2g)
         state = pre_state
@@ -91,3 +91,4 @@ while reward < 98:
     count +=1
     pre_to_goal = to_goal
     pre_state = state
+print count
