@@ -1,23 +1,30 @@
 #! /usr/bin/env python
 
+import rospy
+from gazebo_msgs.msg import ModelState, ModelStates
+from std_msgs.msg import Float64
+
 import numpy as np
 from math import *
 import time
 
-ACTIONMAT = np.array([0, 0], [-1, 1], [-2, 2], [-3, 3], [-4, 4], [-5, 5], 
-            [-6, 6], [-7, 7], [-8, 8], [-9, 9], [-10, 10], 
-            [1, -1], [2, -2], [3, -3], [4, -4], [5, -5], 
-            [6, -6], [7, -7], [8, -8], [9, -9], [10, -10])
+# left and right velocity from 1 to 10
+ACTIONMAT = np.array([0, 1, -1])
 reward = 0.0
 
 
 class QLearning():
     def __init__(self):
-        self.state = [0.0, 0.0]  # [robot_left_vel, robot_right_vel]
-        self.position = [0.0, 0.0]  # [person_x, person_y]
+        self.state = 0.0  # [angle]
+        # self.position = [0.0, 0.0]  # [person_x, person_y]
+        self.yaw = 0.0 # [angle]
         self.goal = 0.0  # [yaw_angle]
         self.full_angel = 0.0  # [max_angle]
         self.reward = 0.0  # point
+
+        self.pub_vel_left = rospy.Publisher('/robot/joint1_velocity_controller/command', Float64, queue_size=5)
+        self.pub_vel_right = rospy.Publisher('/robot/joint2_velocity_controller/command', Float64, queue_size=5)
+        self.sub_state = rospy.Subscriber('/gazebo/model_states', ModelStates, self.state_callback)
 
     def setState(self, state):
         self.state = state
@@ -27,120 +34,60 @@ class QLearning():
         self.full_angel =  degrees(atan(float(320)/(480-position[1])))
        
     def calcReward(self):
-        self.reward  = (1-abs(float(self.goal-self.state))/self.full_angel)*100
-        print self.reward
+        self.reward  = (1-abs(float(self.goal-self.state)/self.goal))*100
+        # print self.reward
         return self.reward
     
-    def step(self, act, learning_rate):
-        new_state = self.state + (act * learning_rate)
+    def step(self, action, learning_rate):
+        # self.pub_vel_left.publish(action[0])
+        # self.pub_vel_right.publish(action[1])
+        new_state = self.state + (action * learning_rate)
 
-        new_state = max(new_state, self.full_angel)
-        new_state = min(new_state, self.full_angel*(-1))
+        new_state = max(new_state, self.full_angel*(-1))
+        new_state = min(new_state, self.full_angel)
 
         self.setState(new_state)
+        print ("state: "), state
         reward = self.calcReward()
+        print ("reward: "), reward
         return self.state, reward
 
-def stateEqual(state1, state2):
-    state1 = state2
-    return state1 == state2
-
-def action_sample(mode, state, Qmatrix):
-    if mode == "random":
-        index = np.random.randint(0, ACTIONMAT.shape[0])
-        action = ACTIONMAT[index]
-        return index
-    if mode == "Q":
-        # Qmatrix contains a list of states [0...goal], actions [1/0/-1] and rewards [0...100]
-
-        myStatesQ =[]
-
-        for datum in Qmatrix:
-            if stateEqual(datum[0], state):
-                myStatesQ.append(datum)
-        if len(myStatesQ) == 0:
-            action=action_sample('random', state, Qmatrix)
-        else:
-            maxState=[0, 0, -9999.0]
-            for thisStateQ in myStatesQ:
-                if thisStateQ[2] > maxState[2]:
-                    maxStat = thisStateQ
-            if maxState[2] == 0.0:
-                action = action_sample('random', state, Qmatrix)
-            else:
-                action = maxState[1]
-        index = action
-    return index
-
-def maxQ(Q, state):
-    maxQvalue = 0
-    for thisQ in Q:
-        thisState=thisQ[0]
-        action=thisQ[1]
-        qvalue = thisQ[2]
-        if stateEqual(state, thisState):
-            maxQvalue = max(qvalue, maxQvalue)
-    return maxQvalue
+    def state_callback(self,data):
+        self.robot_orientation = data.pose[2].orientation
+        euler = euler_from_quaternion((self.robot_orientation.x, self.robot_orientation.y, 
+                                        self.robot_orientation.z, self.robot_orientation.w))
+        self.yaw = degrees(euler[2])
+        return self.yaw
 
 
-def setQ(Q, state, action, value):
-    index = 0
-    found = False
-
-    for datum in Q:
-        try:
-            if stateEqual(state, datum[0]) and action == datum[1]:
-                Q[index] = [state, action, value]
-                found = True
-                break
-        except:
-            print ("except setQ", action, datum)
-        index += 1
-    if not found:
-        Q.append([state, action, value])
-
-
-state = 0
+state = 0.0
 pre_state = state
-learningRate = 0.01
+learningRate = 1
 q = QLearning()
 q.setState(state)
-position = [80, 240]
+position = [560, 240]
+goal = degrees(atan(float(position[0]-320)/(480-position[1])))
+print goal
 q.setGoal(position)
-knt = 0  # counter
-reward = 0.0
-angle2goal = degrees(atan(float(position[0]-320)/(480-position[1])))
-print angle2goal
-pre_angle2goal = angle2goal
+
+count = 0 
+reward= 0.0
+
+to_goal = goal - state
+pre_to_goal = to_goal
 curve = []
 
-# Q learning phase
-Q = []
-stateReset = 0
-state = stateReset
-q.setState(state)
-gamma = 0.9
-G = 0
-
-
-for epoch in range(1, 2):
-    done = False
-    G, reward, knt = 0, 0, 0
-    state = stateReset
+while reward < 98:
+    index = np.random.randint(0,ACTIONMAT.shape[0])
+    action = ACTIONMAT[index]
+    print "action: ", action
+    state,reward = q.step(action,learningRate)
+    to_goal = goal - state
+    if to_goal > pre_to_goal:
+        # if the new reward is worse than the old reward, throw this state away
+        #print("old state",oldState,state,d2g,oldd2g)
+        state = pre_state
     q.setState(state)
-    while not done:
-        action = action_sample("Q", state, Q)
-        motorAction = ACTIONMAT[action]
-        state2, reward = q.step(motorAction, learningRate)
-        newQ = reward + gamma * maxQ(Q, state2)
-        setQ(Q, state, action, newQ)
-        G += reward
-        knt += 1
-        if knt > 10 or reward > 95:
-            done = True
-        state = state2
-        print state
-        q.setState(state)
-    # print Q
-    # if epoch % 2 == 0:
-    #     print("Epoch ", epoch, "TotalReward:", G, " counter:", knt, "Q Len ", len(Q))
+    count +=1
+    pre_to_goal = to_goal
+    pre_state = state
