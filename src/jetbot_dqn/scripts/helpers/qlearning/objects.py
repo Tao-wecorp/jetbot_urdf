@@ -48,7 +48,7 @@ pre_state = state
 q.setState(state)
 # set goal
 ACTIONMAT = np.array([0, 1, -1])
-position = [80, 240]
+position = [450, 240]
 goal = pos_to_ang(position)
 q.setGoal(goal)
 to_goal = goal - state
@@ -59,7 +59,8 @@ reward= 0.0
 learningRate = 1
 actions = []
 states = []
-curve = []
+curve_reward = []
+curve_learning_rate = []
 
 
 while reward < 96:
@@ -79,9 +80,11 @@ while reward < 96:
     count +=1
     pre_to_goal = to_goal
     pre_state = state
-    curve.append(reward)
+    curve_reward.append(reward)
+    curve_learning_rate.append(learningRate)
     
 print "Epoch ", count, " Goal: ", goal, " State: ", state
 print states
-mp.plot(curve)
+mp.plot(curve_reward)
+mp.plot(curve_learning_rate)
 mp.show()
