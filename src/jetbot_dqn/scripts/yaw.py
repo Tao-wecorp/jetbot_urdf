@@ -24,8 +24,8 @@ from helpers.openpose import OpenPose
 openpose = OpenPose()
 x_fpv, y_fpv = [320, 480]
 
-from helpers.qlearning import QLearning
-q = QLearning()
+# from helpers.qlearning import QLearning
+# q = QLearning()
 pose = Pose() 
 
 class Yaw(object):

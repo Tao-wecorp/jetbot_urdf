@@ -1,33 +1,22 @@
-#!/usr/bin/env python3
-
 import numpy as np
 from math import *
 import matplotlib.pyplot as mp
 
-ACTIONMAT = np.array([-1, 0, 1])
-reward = 0.0
 
-class RobotArm():
+class QLearning():
     def __init__(self):
         self.state = 0.0  # [angle]
-        self.position = [0.0, 0.0]  # [x, y]
         self.goal = 0.0  # [angle]
-        self.angle2goal = 0.0  # [angle]
         self.reward = 0.0  # point
 
     def setState(self, state):
         self.state = state
 
-    def setGoal(self, position):
-        goal = degrees(atan(position[0]/position[1]))
+    def setGoal(self, goal):
         self.goal = goal
 
     def calcReward(self):
-        angle2goal = self.goal-self.state
-        self.angle2goal = angle2goal
-        reward = (1 - self.angle2goal/self.goal) * 100
-        self.reward = reward
-        return reward
+        self.reward = (1 - (self.goal-self.state)/self.goal) * 100.0
 
     def step(self, act, learning_rate):
         new_state = self.state + (act * learning_rate)
@@ -36,9 +25,8 @@ class RobotArm():
         new_state = min(new_state, 90)
 
         self.setState(new_state)
-        reward = self.calcReward()
-
-        return self.state, reward
+        self.calcReward()
+        return self.state, self.reward
 
 
 def stateEqual(state1, state2):
@@ -48,25 +36,27 @@ def stateEqual(state1, state2):
 
 def action_sample(mode, state, Qmatrix):
     if mode == "random":
+        modes.append(mode)
         index = np.random.randint(0, ACTIONMAT.shape[0])
         action = ACTIONMAT[index]
         return index
     if mode == "Q":
+        modes.append(mode)
         # Qmatrix contains a list of states [0...goal], actions [1/0/-1] and rewards [0...100]
 
-        myStatesQ =[]
+        StatesQ = []
+        for Q in Qmatrix:
+            if stateEqual(Q[0], state):
+                StatesQ.append(Q)
 
-        for datum in Qmatrix:
-            if stateEqual(datum[0], state):
-                myStatesQ.append(datum)
-        if len(myStatesQ) == 0:
-            action=action_sample('random', state, Qmatrix)
+        if len(StatesQ) == 0:
+            action = action_sample('random', state, Qmatrix)
         else:
-            maxState=[0, 0, -9999.0]
-            for thisStateQ in myStatesQ:
+            maxState = [0, 0, 0]
+            for thisStateQ in StatesQ:
                 if thisStateQ[2] > maxState[2]:
-                    maxStat = thisStateQ
-            if maxState[2] == -9999.0:
+                    maxState = thisStateQ
+            if maxState[2] == 0:
                 action = action_sample('random', state, Qmatrix)
             else:
                 action = maxState[1]
@@ -77,8 +67,7 @@ def action_sample(mode, state, Qmatrix):
 def maxQ(Q, state):
     maxQvalue = 0
     for thisQ in Q:
-        thisState=thisQ[0]
-        action=thisQ[1]
+        thisState = thisQ[0]
         qvalue = thisQ[2]
         if stateEqual(state, thisState):
             maxQvalue = max(qvalue, maxQvalue)
@@ -102,44 +91,49 @@ def setQ(Q, state, action, value):
         Q.append([state, action, value])
 
 
-state = 0
+q = QLearning()
+# set state
+state = 0.0
 pre_state = state
-learningRate = 5.0
-robotArm = RobotArm()
-robotArm.setState(state)
-goal_position = [10, 10]
-robotArm.setGoal(goal_position)
-knt = 0  # counter
-reward = 0.0
-angle2goal = degrees(atan(goal_position[0]/goal_position[1]))
-pre_angle2goal = angle2goal
+q.setState(state)
+# set goal
+position = [10, 10]
+goal = degrees(atan(position[0]/position[1]))
+q.setGoal(goal)
+# init
+ACTIONMAT = np.array([-1, 0, 1])
+count = 0
+learningRate = 1.0
+reward = 0.0 
 curve = []
+modes = []
 
 # Q learning phase
 Q = []
-stateReset = 0
-state = stateReset
-robotArm.setState(state)
 gamma = 0.9
-G = 0
+G = 0.0
 
 
-for epoch in range(1, 100):
+for epoch in range(1, 5):
     done = False
-    G, reward, knt = 0, 0, 0
-    state = stateReset
-    robotArm.setState(state)
+    G, reward, count = 0, 0, 0
+    q.setState(0.0)
+    
     while not done:
-        action = action_sample("Q", state, Q)
-        motorAction = ACTIONMAT[action]
-        state2, reward = robotArm.step(motorAction, learningRate)
+        goal = goal + 0.2
+        q.setGoal(goal)
+        index = action_sample("Q", state, Q)
+        action = ACTIONMAT[index]
+        state2, reward = q.step(action, learningRate)
         newQ = reward + gamma * maxQ(Q, state2)
-        setQ(Q, state, action, newQ)
+        setQ(Q, state, index, newQ)
         G += reward
-        knt += 1
-        if knt > 1000 or reward > 99:
+        count += 1
+        if count > 10 or reward > 99:
             done = True
         state = state2
-        robotArm.setState(state)
-    if epoch % 2 == 0:
-        print("Epoch ", epoch, "TotalReward:", G, " counter:", knt, "Q Len ", len(Q))
+        q.setState(state)
+        learningRate = (100 - reward) / 3
+
+print modes
+print state
