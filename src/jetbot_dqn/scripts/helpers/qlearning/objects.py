@@ -2,6 +2,7 @@
 
 import numpy as np
 from math import *
+import sys
 import time
 
 # left and right velocity from 1 to 10
@@ -25,7 +26,7 @@ class QLearning():
         # self.full_angel =  degrees(atan(float(320)/(480-position[1])))
        
     def calcReward(self):
-        self.reward  = (1-abs(float(self.goal-self.state)/(self.goal+0.00001)))*100
+        self.reward  = (1-abs(float(self.goal-self.state)/(self.goal+sys.float_info.epsilon)))*100
         return self.reward
     
     def step(self, action, learning_rate):
