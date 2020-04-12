@@ -4,6 +4,7 @@ import numpy as np
 from math import *
 import sys
 import time
+import matplotlib.pyplot as mp
 
 # left and right velocity from 1 to 10
 ACTIONMAT = np.array([0, 1, -1])
@@ -58,6 +59,7 @@ reward= 0.0
 to_goal = goal - state
 pre_to_goal = to_goal
 actions = []
+curve = []
 
 while reward < 96:
     goal = goal + 0.2
@@ -74,6 +76,9 @@ while reward < 96:
     count +=1
     pre_to_goal = to_goal
     pre_state = state
+    curve.append(reward)
     
 print "Epoch ", count, " Goal: ", goal, " State: ", state
 print actions
+mp.plot(curve)
+mp.show()
