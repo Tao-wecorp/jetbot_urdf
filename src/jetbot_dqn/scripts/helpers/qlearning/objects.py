@@ -6,10 +6,6 @@ import sys
 import time
 import matplotlib.pyplot as mp
 
-# left and right velocity from 1 to 10
-ACTIONMAT = np.array([0, 1, -1])
-reward = 0.0
-
 
 class QLearning():
     def __init__(self):
@@ -44,22 +40,27 @@ def pos_to_ang(position):
     angle = degrees(atan(float(position[0]-320)/(480-position[1])))
     return angle
 
+
+q = QLearning()
+# set sate
 state = 0.0
 pre_state = state
-learningRate = 1
-q = QLearning()
 q.setState(state)
-position = [400, 240]
+# set goal
+ACTIONMAT = np.array([0, 1, -1])
+position = [80, 240]
 goal = pos_to_ang(position)
 q.setGoal(goal)
-
-count = 0 
-reward= 0.0
-
 to_goal = goal - state
 pre_to_goal = to_goal
+# init
+count = 0 
+reward= 0.0
+learningRate = 1
 actions = []
+states = []
 curve = []
+
 
 while reward < 96:
     goal = goal + 0.2
@@ -68,6 +69,8 @@ while reward < 96:
     action = ACTIONMAT[index]
     actions.append(action)
     state, reward = q.step(action,learningRate)
+    states.append(state)
+    learningRate = (100-reward)/3 # adaptive learning rate
     to_goal = goal - state
 
     if abs(to_goal) > abs(pre_to_goal):
@@ -79,6 +82,6 @@ while reward < 96:
     curve.append(reward)
     
 print "Epoch ", count, " Goal: ", goal, " State: ", state
-print actions
+print states
 mp.plot(curve)
 mp.show()
