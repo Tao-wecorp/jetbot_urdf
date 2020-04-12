@@ -21,8 +21,8 @@ from helpers.openpose import OpenPose
 openpose = OpenPose()
 x_fpv, y_fpv = [320, 480]
 
-# from helpers.qlearning import QLearning
-# q = QLearning()
+from helpers.qlearning import QLearning
+q = QLearning()
 pose = Pose()
 
 class Yaw(object):
@@ -46,15 +46,12 @@ class Yaw(object):
                 start_time = time.time()
                 frame = deepcopy(self.frame)
                 
-                # points = openpose.detect(frame)
-                # x_hip, y_hip = points[11]
-                # yaw_angle = q.yaw([x_hip, y_hip])
+                points = openpose.detect(frame)
+                x_hip, y_hip = points[11]
+                yaw_angle = openpose.yaw([x_hip, y_hip])
 
-                self.pub_vel_left.publish(15)
-                self.pub_vel_right.publish(0)
-                # time.sleep(10)
-                # self.pub_vel_left.publish(0)
-                # self.pub_vel_right.publish(0)
+                # RL the fastest velocity to point to the object
+                # yaw_actions = self.set_vel(q.actions(yaw_angle))
 
                 # for i in range(len(points)):
                 #     if points[i] is not None:
@@ -68,20 +65,26 @@ class Yaw(object):
                 time.sleep(round((time.time() - start_time), 1))
             rate.sleep()
     
-    def camera_callback(self,data):
+    def camera_callback(self, data):
         try:
             cv_img = self.bridge_object.imgmsg_to_cv2(data, desired_encoding="bgr8")
         except CvBridgeError as e:
             print(e)
         self.frame = cv_img
 
-    def states_callback(self,data):
+    def states_callback(self, data):
         self.robot_orientation = data.pose[2].orientation
         euler = euler_from_quaternion((self.robot_orientation.x, self.robot_orientation.y, 
                                         self.robot_orientation.z, self.robot_orientation.w))
-        yaw = degrees(euler[2])
-        print("%f yaw" % yaw)
-
+        yaw = degrees(euler[2]) # print("%f yaw" % yaw)
+        self.yaw = yaw
+    
+    def set_vel(self, actions):
+        for i in range(len(actions))
+            self.pub_vel_left_1.publish(actions[i][0])
+            self.pub_vel_right_1.publish(actions[i][1])
+        self.pub_vel_left_1.publish(0)
+        self.pub_vel_right_1.publish(0)
 
 def main():
     try:
