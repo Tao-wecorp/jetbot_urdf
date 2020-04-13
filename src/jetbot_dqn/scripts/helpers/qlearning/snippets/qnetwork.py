@@ -1,7 +1,7 @@
 import numpy as np
 from math import *
 import matplotlib.pyplot as mp
-
+import pickle
 
 class QLearning():
     def __init__(self):
@@ -114,14 +114,12 @@ gamma = 0.9
 G = 0.0
 
 
-for epoch in range(1, 5):
+for epoch in range(1, 1000):
     done = False
     G, reward, count = 0, 0, 0
     q.setState(0.0)
     
     while not done:
-        goal = goal + 0.2
-        q.setGoal(goal)
         index = action_sample("Q", state, Q)
         action = ACTIONMAT[index]
         state2, reward = q.step(action, learningRate)
@@ -129,11 +127,17 @@ for epoch in range(1, 5):
         setQ(Q, state, index, newQ)
         G += reward
         count += 1
-        if count > 10 or reward > 99:
+        if count > 100 or reward > 99:
             done = True
         state = state2
         q.setState(state)
         learningRate = (100 - reward) / 3
+    if epoch % 2 == 0:
+        print("Epoch ",epoch,"TotalReward:",G," counter:",count,"Q Len ",len(Q))
 
-print modes
 print state
+print Q
+
+output = open('yaw.pkl', 'wb')
+pickle.dump(Q, output)
+output.close()
