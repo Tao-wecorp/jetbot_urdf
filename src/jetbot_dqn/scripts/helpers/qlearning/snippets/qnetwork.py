@@ -2,6 +2,7 @@ import numpy as np
 from math import *
 import matplotlib.pyplot as mp
 import pickle
+import sys
 
 class QLearning():
     def __init__(self):
@@ -16,12 +17,12 @@ class QLearning():
         self.goal = goal
 
     def calcReward(self):
-        self.reward = (1 - (self.goal-self.state)/self.goal) * 100.0
+        self.reward = (1-abs(float(self.goal-self.state)/(self.goal+sys.float_info.epsilon)))*100
 
     def step(self, act, learning_rate):
         new_state = self.state + (act * learning_rate)
 
-        new_state = max(new_state, 0)
+        new_state = max(new_state, -90)
         new_state = min(new_state, 90)
 
         self.setState(new_state)
@@ -97,9 +98,9 @@ state = 0.0
 pre_state = state
 q.setState(state)
 # set goal
-position = [10, 10]
-goal = degrees(atan(position[0]/position[1]))
-q.setGoal(goal)
+position = [80, 240]
+goal = degrees(atan(float(position[0]-320)/(480-position[1])))
+q.setGoal(-75)
 # init
 ACTIONMAT = np.array([-1, 0, 1])
 count = 0
@@ -107,6 +108,7 @@ learningRate = 1.0
 reward = 0.0 
 curve = []
 modes = []
+rewards = []
 
 # Q learning phase
 Q = []
@@ -123,21 +125,24 @@ for epoch in range(1, 1000):
         index = action_sample("Q", state, Q)
         action = ACTIONMAT[index]
         state2, reward = q.step(action, learningRate)
+        rewards.append(reward)
         newQ = reward + gamma * maxQ(Q, state2)
-        setQ(Q, state, index, newQ)
+        if newQ > 0:
+            setQ(Q, state, index, newQ)
         G += reward
         count += 1
-        if count > 100 or reward > 99:
+        if count > 100 or 0 > reward > 99:
             done = True
         state = state2
         q.setState(state)
         learningRate = (100 - reward) / 3
-    if epoch % 2 == 0:
-        print("Epoch ",epoch,"TotalReward:",G," counter:",count,"Q Len ",len(Q))
+    # if epoch % 2 == 0:
+    #     print("Epoch ",epoch,"TotalReward:",G," counter:",count,"Q Len ",len(Q))
 
-print state
-print Q
-
+# To-do: detect if file exists
+QMAT = pickle.load(open("yaw.pkl", "rb" ))
+# TO-do: only update if state-action pair does not exist
+QMAT = QMAT + Q
 output = open('yaw.pkl', 'wb')
-pickle.dump(Q, output)
+pickle.dump(QMAT, output)
 output.close()
