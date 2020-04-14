@@ -9,11 +9,10 @@ from keras.optimizers import Adam
 from rl.agents import DDPGAgent
 from rl.memory import SequentialMemory
 from rl.random import OrnsteinUhlenbeckProcess
-
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 ENV_NAME = 'Pendulum-v0'
-
-
 
 env = gym.make(ENV_NAME)
 np.random.seed(123)
@@ -57,6 +56,6 @@ agent.compile(Adam(lr=.001, clipnorm=1.), metrics=['mae'])
 
 agent.fit(env, nb_steps=50000, visualize=True, verbose=1, nb_max_episode_steps=200)
 
-# agent.save_weights('ddpg_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
+agent.save_weights('ddpg_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
 
-# agent.test(env, nb_episodes=5, visualize=True, nb_max_episode_steps=200)
+agent.test(env, nb_episodes=5, visualize=True, nb_max_episode_steps=200)
