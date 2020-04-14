@@ -1,0 +1,3 @@
+[submodule "src/openai_ros"]
+	path = src/openai_ros
+	url = https://bitbucket.org/theconstructcore/openai_ros.git
