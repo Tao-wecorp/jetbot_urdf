@@ -1,3 +1,16 @@
+#! /usr/bin/env python
+
+# Initialize
+#    arbitrary action-value function
+# Repeat (for each episode)
+#    Initialize s
+#    choose a from s using policy from action-value function
+#    Repeat (for each step in episode)
+#       take action a
+#       observe r, s'
+#       update action-value function
+#       update s
+
 import numpy as np
 from math import *
 import matplotlib.pyplot as mp

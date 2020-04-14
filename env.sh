@@ -7,6 +7,7 @@ pip2 install imageio==2.6.1
 pip2 install tensorflow-gpu==1.14.0 keras==2.3.1
 pip2 install cvlib --no-deps
 pip2 install requests progressbar imutils  opencv-python
+pip2 install pyglet==1.3.0
 
 echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/ros/melodic/lib" >> ~/.bashrc
 source ~/.bashrc
