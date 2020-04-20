@@ -49,6 +49,7 @@ class Yaw(object):
             if self.frame is not None:
                 start_time = time.time()
                 frame = deepcopy(self.frame)
+                robot_position = deepcopy(self.robot_position)
                 
                 points = openpose.detect(frame)
                 x_hip, y_hip = points[11]
@@ -56,7 +57,7 @@ class Yaw(object):
                 
                 rospy.wait_for_service('/gazebo/set_model_state')
                 try:
-                    pose.position = self.robot_position
+                    pose.position = robot_position
                     pose.orientation = Quaternion(*quaternion_from_euler(0.0, 0.0, yaw_angle*pi/180))
                     state_robot_msg.pose = pose
                     self.set_state(state_robot_msg)
